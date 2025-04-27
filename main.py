@@ -1,15 +1,14 @@
 from engine.src.core.audio_io import load_audio, save_audio
-from engine.src.core.playback import play_audio
+from engine.src.core.playback import play_audio, cut, delete, paste, copy
 from engine.src.core.audio_processor import AudioProcessor
 
-audio, sr = load_audio('new_audio.wav')
+audio, sr = load_audio('wag_dog_plan.wav')
 
+segment, audio = copy(audio, sr, 3, 4)
 
-processor = AudioProcessor()
+audio = paste(audio, segment, sr, 0)
 
-audio = processor.normalize(audio)
-
-audio = processor.trim(audio, 0, 5, sr)
+audio = delete(audio, sr, 0, 4)
 
 play_audio(audio, sr)
 
