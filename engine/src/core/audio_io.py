@@ -3,7 +3,10 @@ import soundfile as sf
 from typing import Optional, Union
 
 def load_audio(file_path: str, sample_rate: Optional[Union[int, float]] = None):
-    return librosa.load(file_path, sr=sample_rate)
+    try:
+        return librosa.load(file_path, sr=sample_rate)
+    except:
+        print("Cann't Load the audio file.")
 
 def save_audio(file_path: str, audio, sample_rate: int):
     try:
