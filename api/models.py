@@ -1,18 +1,27 @@
+from enum import Enum
 from pydantic import BaseModel
 from typing import Optional, Dict
 
+class OperationType(str, Enum):
+    CUT = "cut"
+    DELETE = "delete"
+    PASTE = "paste"
+    APPLY_EFFECT = "apply_effect"
+    NORMALIZE = "normalize"
+
 class AudioOperationRequest(BaseModel):
-    start_time: Optional[float] = None  # For cut, copy, delete
-    end_time: Optional[float] = None    # For cut, copy, delete
-    paste_time: Optional[float] = None  # For paste
-    segment: Optional[str] = None       # Base64-encoded segment for paste
-    effect_name: Optional[str] = None   # Effect to apply (e.g., 'fade')
-    effect_params: Optional[Dict] = None  # Parameters for effect
-    normalize: Optional[bool] = False   # Whether to normalize
+    operation: OperationType
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    paste_time: Optional[float] = None
+    segment_id: Optional[str] = None
+    effect_name: Optional[str] = None
+    effect_params: Optional[dict] = None
 
 class AudioResponse(BaseModel):
     file_id: str
     file_url: str
+    segment_id: Optional[str] = None
     message: str
 
 class EffectsResponse(BaseModel):

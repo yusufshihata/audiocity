@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Optional, Union
 from abc import ABC, abstractmethod
-from effects.effect_base import EffectBase
+from engine.src.effects.effect_base import EffectBase
 
 
 class FadeStrategy(ABC):
