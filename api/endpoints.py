@@ -56,7 +56,7 @@ async def process_audio(file_id: str, request: AudioOperationRequest):
                 raise HTTPException(status_code=400, detail="start_time and end_time required for cut")
             segment, engine = engine.cut(request.start_time, request.end_time)
             segment_id = str(uuid.uuid4())
-            segment_path = os.path.join(UPLOAD_DIR, f"segment_{file_id}_{segment_id}.wav")
+            segment_path = os.path.join(UPLOAD_DIR, f"{segment_id}.wav")
             sf.write(segment_path, segment, engine.sr)
 
         elif request.operation == OperationType.DELETE:
@@ -67,14 +67,14 @@ async def process_audio(file_id: str, request: AudioOperationRequest):
         elif request.operation == OperationType.PASTE:
             if request.segment_id is None or request.paste_time is None:
                 raise HTTPException(status_code=400, detail="segment_id and paste_time required for paste")
-            segment_path = os.path.join(UPLOAD_DIR, f"segment_{file_id}_{request.segment_id}.wav")
+            segment_path = os.path.join(UPLOAD_DIR, f"{request.segment_id}.wav")
             if not os.path.exists(segment_path):
                 raise HTTPException(status_code=404, detail="Segment not found")
             segment, sr = sf.read(segment_path)
             if sr != engine.sr:
                 raise HTTPException(status_code=400, detail="Segment sample rate mismatch")
             engine.paste(segment, request.paste_time)
-
+            
         elif request.operation == OperationType.APPLY_EFFECT:
             if request.effect_name is None:
                 raise HTTPException(status_code=400, detail="effect_name required for apply_effect")
@@ -93,7 +93,7 @@ async def process_audio(file_id: str, request: AudioOperationRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
 
-    output_path = os.path.join(UPLOAD_DIR, f"processed_{file_id}.wav")
+    output_path = os.path.join(UPLOAD_DIR, f"{file_id}.wav")
     try:
         engine.save(output_path)
     except Exception as e:
@@ -121,11 +121,11 @@ async def process_audio(file_id: str, request: AudioOperationRequest):
 @router.get("/download/{file_id}", response_model=None)
 async def download_audio(file_id: str):
     try:
-        file_path = os.path.join(UPLOAD_DIR, [f for f in os.listdir(UPLOAD_DIR) if f.startswith(f"processed_{file_id}")][0])
+        file_path = os.path.join(UPLOAD_DIR, [f for f in os.listdir(UPLOAD_DIR) if f.startswith(f"{file_id}")][0])
     except IndexError:
         raise HTTPException(status_code=404, detail="Processed file not found")
 
-    return FileResponse(file_path, filename=f"processed_{file_id}.wav")
+    return FileResponse(file_path, filename=f"{file_id}.wav")
 
 @router.get("/effects", response_model=EffectsResponse)
 async def list_effects():
